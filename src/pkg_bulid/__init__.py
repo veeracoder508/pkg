@@ -1,11 +1,11 @@
 """Package builder module."""
 
 from . import constructor
-from .constructor import Bulider, compress, ConfigFileNotFound, CompressionError, BuildError
+from .constructor import Builder, compress, ConfigFileNotFound, CompressionError, BuildError
 
 __all__ = [
     "constructor",
-    "Bulider",
+    "Builder",
     "compress",
     "ConfigFileNotFound",
     "CompressionError",

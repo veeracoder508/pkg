@@ -9,9 +9,9 @@ import sys
 from pathlib import Path
 
 # Add src to path for imports
-sys.path.insert(0, str(Path(__file__).parent / "src"))
+sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from pkg_bulid import Bulider, ConfigFileNotFound, CompressionError, BuildError
+from pkg_bulid import Builder, ConfigFileNotFound, CompressionError, BuildError
 
 
 def example_1_basic_build():
@@ -20,7 +20,7 @@ def example_1_basic_build():
     print("-" * 50)
     
     try:
-        builder = Bulider("my_awesome_package")
+        builder = Builder("my_awesome_package")
         output_file = builder.build()
         print(f"✓ Package built successfully!")
         print(f"  Output: {output_file}")
@@ -37,7 +37,7 @@ def example_2_custom_output_dir():
     print("-" * 50)
     
     try:
-        builder = Bulider("my_package")
+        builder = Builder("my_package")
         output_file = builder.build(output_dir="./dist")
         print(f"✓ Package built successfully!")
         print(f"  Output: {output_file}")
@@ -54,7 +54,7 @@ def example_3_error_handling():
     print("-" * 50)
     
     try:
-        builder = Bulider("my_package")
+        builder = Builder("my_package")
         output_file = builder.build()
         print(f"✓ Success: {output_file}")
     except ConfigFileNotFound as e:
@@ -93,7 +93,7 @@ def example_5_parsing_gitignore():
     print("Example 5: Inspect .gitignore Patterns")
     print("-" * 50)
     
-    from pkg_bulid.constructor import parse_gitignore
+    from src.pkg_bulid.constructor import parse_gitignore
     
     patterns = parse_gitignore(".gitignore")
     if patterns:
@@ -105,7 +105,7 @@ def example_5_parsing_gitignore():
     print()
 
 
-if __name__ == "__main__":
+def main():
     print("\n" + "=" * 50)
     print("Package Builder Examples with .gitignore Support")
     print("=" * 50 + "\n")
@@ -119,3 +119,7 @@ if __name__ == "__main__":
     # example_2_custom_output_dir()
     # example_3_error_handling()
     # example_4_direct_compression()
+
+
+if __name__ == "__main__":
+    main()

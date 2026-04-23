@@ -1,5 +1,10 @@
+"""
+
+"""
+
 import os
 import tarfile
+import fnmatch
 from pathlib import Path
 from typing import Set
 from .errors import CompressionError
@@ -70,7 +75,6 @@ def should_ignore(path: str, patterns: Set[str], root_path: str) -> bool:
                     if path_obj.suffix == pattern.replace('*', ''):
                         return True
                 elif '*' in pattern:
-                    import fnmatch
                     if fnmatch.fnmatch(path_obj.name, pattern):
                         return True
         else:

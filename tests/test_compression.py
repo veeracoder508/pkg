@@ -7,10 +7,121 @@ import tarfile
 from pathlib import Path
 
 # Add src to path
-sys.path.insert(0, str(Path(__file__).parent.parent / \"src\"))
+sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 from pkg_bulid.constructor import compress, parse_gitignore, ConfigFileNotFound, CompressionError
 
 
 def test_parse_gitignore():
-    \"\"\"Test parsing .gitignore file.\"\"\"\n    with tempfile.NamedTemporaryFile(mode='w', suffix='.gitignore', delete=False) as f:\n        f.write(\"\"\"# Comments should be ignored\n__pycache__/\n*.pyc\nbuild/\n.venv\n\"\"\")\n        f.flush()\n        \n        patterns = parse_gitignore(f.name)\n        assert '__pycache__/' in patterns\n        assert '*.pyc' in patterns\n        assert 'build/' in patterns\n        assert '.venv' in patterns\n        assert '# Comments should be ignored' not in patterns\n        \n        os.unlink(f.name)\n        print(\"✓ test_parse_gitignore passed\")\n\n\ndef test_parse_gitignore_missing_file():\n    \"\"\"Test parsing non-existent .gitignore file.\"\"\"\n    patterns = parse_gitignore('/nonexistent/.gitignore')\n    assert patterns == set()\n    print(\"✓ test_parse_gitignore_missing_file passed\")\n\n\ndef test_compress_with_filters():\n    \"\"\"Test compression with gitignore filtering.\"\"\"\n    with tempfile.TemporaryDirectory() as tmpdir:\n        # Create test structure\n        os.makedirs(os.path.join(tmpdir, '__pycache__'))\n        os.makedirs(os.path.join(tmpdir, 'src'))\n        os.makedirs(os.path.join(tmpdir, 'build'))\n        \n        # Create files\n        Path(os.path.join(tmpdir, 'src', 'main.py')).write_text('print(\"hello\")')\n        Path(os.path.join(tmpdir, '__pycache__', 'cache.pyc')).write_text('compiled')\n        Path(os.path.join(tmpdir, 'file.txt')).write_text('text')\n        Path(os.path.join(tmpdir, '.gitignore')).write_text('__pycache__/\\nbuild/')\n        \n        # Compress\n        output_file = os.path.join(tmpdir, 'test.tar.gz')\n        compress(\n            pkg_name='test_pkg',\n            source_folder=tmpdir,\n            output_file=output_file\n        )\n        \n        # Verify archive\n        assert os.path.exists(output_file)\n        with tarfile.open(output_file, 'r:gz') as tar:\n            names = tar.getnames()\n            assert any('main.py' in name for name in names)\n            assert any('file.txt' in name for name in names)\n            # __pycache__ should be filtered out\n            assert not any('__pycache__' in name for name in names)\n            assert not any('.gitignore' in name for name in names)\n        \n        print(\"✓ test_compress_with_filters passed\")\n\n\ndef test_compress_invalid_source():\n    \"\"\"Test compression with invalid source folder.\"\"\"\n    try:\n        compress(\n            pkg_name='test',\n            source_folder='/nonexistent/path',\n            output_file='test.tar.gz'\n        )\n        assert False, \"Should have raised CompressionError\"\n    except CompressionError as e:\n        assert \"Source folder not found\" in str(e)\n        print(\"✓ test_compress_invalid_source passed\")\n\n\ndef test_default_patterns_ignored():\n    \"\"\"Test that default patterns are always ignored.\"\"\"\n    with tempfile.TemporaryDirectory() as tmpdir:\n        # Create files that should always be ignored\n        Path(os.path.join(tmpdir, '.git')).mkdir()\n        Path(os.path.join(tmpdir, '.git', 'config')).write_text('git config')\n        Path(os.path.join(tmpdir, 'test.tar.gz')).write_text('archive')\n        Path(os.path.join(tmpdir, 'readme.txt')).write_text('readme')\n        \n        # No .gitignore file\n        output_file = os.path.join(tmpdir, 'output.tar.gz')\n        compress(\n            pkg_name='test',\n            source_folder=tmpdir,\n            output_file=output_file\n        )\n        \n        with tarfile.open(output_file, 'r:gz') as tar:\n            names = tar.getnames()\n            # .git should be filtered\n            assert not any('.git' in name for name in names)\n            # readme should be included\n            assert any('readme.txt' in name for name in names)\n        \n        print(\"✓ test_default_patterns_ignored passed\")\n\n\nif __name__ == \"__main__\":\n    print(\"Running compression tests...\\n\")\n    try:\n        test_parse_gitignore()\n        test_parse_gitignore_missing_file()\n        test_compress_with_filters()\n        test_compress_invalid_source()\n        test_default_patterns_ignored()\n        print(\"\\n✓ All tests passed!\")\n    except Exception as e:\n        print(f\"\\n✗ Test failed: {e}\")\n        import traceback\n        traceback.print_exc()\n        sys.exit(1)\n"
+    """Test parsing .gitignore file."""
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.gitignore', delete=False) as f:
+            f.write("""# Comments should be ignored\n__pycache__/\n*.pyc\nbuild/\n.venv\n""")
+            f.flush()
+            
+            patterns = parse_gitignore(f.name)
+            assert '__pycache__/' in patterns
+            assert '*.pyc' in patterns
+            assert 'build/' in patterns
+            assert '.venv' in patterns
+            assert '# Comments should be ignored' not in patterns
+    # remove the temporary file after the NamedTemporaryFile is closed
+    os.unlink(f.name)
+
+
+def test_parse_gitignore_missing_file():
+    """Test parsing non-existent .gitignore file."""
+    patterns = parse_gitignore('/nonexistent/.gitignore')
+    assert patterns == set()
+    print("✓ test_parse_gitignore_missing_file passed")
+
+
+def test_compress_with_filters():
+    """Test compression with gitignore filtering."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        # Create test structure
+        os.makedirs(os.path.join(tmpdir, '__pycache__'))
+        os.makedirs(os.path.join(tmpdir, 'src'))
+        os.makedirs(os.path.join(tmpdir, 'build'))
+
+        # Create files
+        Path(os.path.join(tmpdir, 'src', 'main.py')).write_text('print("hello")')
+        Path(os.path.join(tmpdir, '__pycache__', 'cache.pyc')).write_text('compiled')
+        Path(os.path.join(tmpdir, 'file.txt')).write_text('text')
+        Path(os.path.join(tmpdir, '.gitignore')).write_text('__pycache__/\nbuild/')
+
+        # Compress
+        output_file = os.path.join(tmpdir, 'test.tar.gz')
+        compress(
+            pkg_name='test_pkg',
+            source_folder=tmpdir,
+            output_file=output_file
+        )
+
+        # Verify archive
+        assert os.path.exists(output_file)
+        with tarfile.open(output_file, 'r:gz') as tar:
+            names = tar.getnames()
+            assert any('main.py' in name for name in names)
+            assert any('file.txt' in name for name in names)
+            # __pycache__ should be filtered out
+            assert not any('__pycache__' in name for name in names)
+            assert not any('.gitignore' in name for name in names)
+
+        print("✓ test_compress_with_filters passed")
+
+
+def test_compress_invalid_source():
+    """Test compression with invalid source folder."""
+    try:
+        compress(
+            pkg_name='test',
+            source_folder='/nonexistent/path',
+            output_file='test.tar.gz'
+        )
+        assert False, "Should have raised CompressionError"
+    except CompressionError as e:
+        assert "Source folder not found" in str(e)
+        print("✓ test_compress_invalid_source passed")
+
+
+def test_default_patterns_ignored():
+    """Test that default patterns are always ignored."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        # Create files that should always be ignored
+        Path(os.path.join(tmpdir, '.git')).mkdir()
+        Path(os.path.join(tmpdir, '.git', 'config')).write_text('git config')
+        Path(os.path.join(tmpdir, 'test.tar.gz')).write_text('archive')
+        Path(os.path.join(tmpdir, 'readme.txt')).write_text('readme')
+
+        # No .gitignore file
+        output_file = os.path.join(tmpdir, 'output.tar.gz')
+        compress(
+            pkg_name='test',
+            source_folder=tmpdir,
+            output_file=output_file
+        )
+
+        with tarfile.open(output_file, 'r:gz') as tar:
+            names = tar.getnames()
+            # .git should be filtered
+            assert not any('.git' in name for name in names)
+            # readme should be included
+            assert any('readme.txt' in name for name in names)
+
+        print("✓ test_default_patterns_ignored passed")
+
+
+if __name__ == "__main__":
+    print("Running compression tests...\n")
+    try:
+        test_parse_gitignore()
+        test_parse_gitignore_missing_file()
+        test_compress_with_filters()
+        test_compress_invalid_source()
+        test_default_patterns_ignored()
+        print("\n✓ All tests passed!")
+    except Exception as e:
+        print(f"\n✗ Test failed: {e}")
+        import traceback
+        traceback.print_exc()
+        sys.exit(1)

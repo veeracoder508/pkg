@@ -1,3 +1,5 @@
+"""Main builder functionality for creating package archives."""
+
 import os
 from pathlib import Path
 from .errors import ConfigFileNotFound, CompressionError, BuildError
@@ -8,10 +10,11 @@ CONFIG_FILES: tuple[str] = (
     "pyproject.toml",
     "README.md",
     ".python-version",
-    "uv.lock"
+    "uv.lock",
+    "LICENSE"
 )
 
-def check_if_all_config_files_exists() -> bool:
+def check_if_all_config_files_exist() -> bool:
     """Check if all the config files for the package are present.
 
     Raises:
@@ -20,13 +23,16 @@ def check_if_all_config_files_exists() -> bool:
     Returns:
         bool: True if all the files are present.
     """
+    files_not_found: list[str] = []
     for file in CONFIG_FILES:
         if not os.path.exists(file):
-            raise ConfigFileNotFound(file)
+            files_not_found.append(file)
+    if files_not_found:
+        raise ConfigFileNotFound(str(files_not_found))
     return True
 
 
-class Bulider:
+class Builder:
     """Builder class for compressing and packaging projects."""
     
     def __init__(self, pkg_name: str) -> None:
@@ -52,7 +58,7 @@ class Bulider:
             BuildError: if build operation fails
         """
         try:
-            if check_if_all_config_files_exists():
+            if check_if_all_config_files_exist():
                 os.makedirs(output_dir, exist_ok=True)
                 output_file = os.path.join(output_dir, f"{self.pkg_name}.tar.gz")
                 compress(pkg_name=self.pkg_name, source_folder=".", output_file=output_file)

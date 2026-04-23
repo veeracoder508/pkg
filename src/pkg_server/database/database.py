@@ -1,4 +1,5 @@
-from config import Base
+from typing import Optional
+from .config import Base
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy import (
     Integer, String,
@@ -17,6 +18,8 @@ class PkgMetaData(Base):
     __tablename__ = "pkg_metadata"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    author: Mapped[str] = mapped_column(String(120))
-    user_name: Mapped[str] = mapped_column(String(50))
-    license: Mapped[str] = mapped_column(String(100))
+    pkg_id: Mapped[int] = mapped_column(Integer, ForeignKey("pkg.id"))
+    version: Mapped[str] = mapped_column(String(25))
+    author: Mapped[Optional[str]] = mapped_column(String(120))
+    user_name: Mapped[Optional[str]] = mapped_column(String(50))
+    license: Mapped[Optional[str]] = mapped_column(String(100))
