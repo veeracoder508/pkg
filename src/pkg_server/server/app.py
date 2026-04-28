@@ -1,15 +1,25 @@
 import os
+from pathlib import Path
 from flask import Flask
 from pkg_server.database.config import db, Config
 from pkg_server.server.api import *
 
 
 def create_app() -> Flask:
-    """Create and configure the Flask application."""
-    # Calculate the project root directory (3 levels up from this file)
-    # to ensure the instance folder and database are created in the project root.
-    root_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
-    instance_path = os.path.join(root_path, "instance")
+    """Create and configure the Flask application instance.
+
+    Initializes the app, configures settings, sets up SQLAlchemy, registers 
+    blueprints, and creates database tables.
+
+    The instance folder is placed at the project root level to avoid conflicts 
+    with package structure.
+
+    Returns:
+        Flask: A configured Flask application instance.
+    """
+    # Calculate project root relative to this file (src/pkg_server/server/app.py)
+    project_root = Path(__file__).resolve().parents[3]
+    instance_path = str(project_root / "instance")
     
     app = Flask(__name__, instance_path=instance_path)
     

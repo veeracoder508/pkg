@@ -1,3 +1,8 @@
+"""
+This package defines the API endpoints for retrieving package information
+and downloading package files from the registry.
+"""
+
 import os
 from flask import Blueprint, request, jsonify, current_app, send_from_directory
 from werkzeug.utils import secure_filename
@@ -10,6 +15,19 @@ serv_getter = Blueprint("getter", __name__)
 
 @serv_getter.route("/api/get/search")
 def search():
+    """Search for packages in the registry.
+
+    This endpoint allows clients to search for packages by name using a partial,
+    case-insensitive match.
+
+    Args:
+        name (str, optional): The partial name of the package to search for.
+                              Provided as a query parameter.
+
+    Returns:
+        Response: A JSON response containing matching packages and their latest versions (200),
+                  or an error message (400/500).
+    """
     search_query = request.args.get("name")
     
     if not search_query:
@@ -36,6 +54,27 @@ def search():
 
 @serv_getter.route('/api/get/download', methods=['GET'])
 def download_package():
+    """Download a specific version of a package from the server.
+
+    This endpoint expects a GET request with query parameters:
+        name (str): The name of the package to download.
+        version (str): The specific version string of the package.
+
+    The function constructs the expected filename (e.g., `pkg_name-version.tar.gz`),
+    locates it within the application's secure `instance/package_storage` directory,
+    and serves it as an attachment.
+
+    Returns:
+        Response: The package file as a downloadable attachment if found (200),
+                  or a JSON error response (400 if parameters are missing,
+                  404 if the package/version is not found, 500 for other errors).
+
+    Raises:
+        Exception: Catches generic exceptions during file path construction or
+                   access, returning a 500 error. Note that `send_from_directory`
+                   handles file not found scenarios internally before this
+                   exception catch.
+    """
     package_name = request.args.get('name')
     version = request.args.get('version')
 

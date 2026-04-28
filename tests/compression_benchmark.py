@@ -9,7 +9,7 @@ from pathlib import Path
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from pkg_bulid.constructor import compress, parse_gitignore, ConfigFileNotFound, CompressionError
+from pkg.bulid.constructor import compress, parse_gitignore, ConfigFileNotFound, CompressionError
 
 
 def test_parse_gitignore():

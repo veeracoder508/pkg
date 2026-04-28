@@ -6,22 +6,25 @@ from .errors import ConfigFileNotFound, CompressionError, BuildError
 from .compresser import compress
 
 
-CONFIG_FILES: tuple[str] = (
+CONFIG_FILES: tuple[str, ...] = (
     "pyproject.toml",
     "README.md",
     ".python-version",
     "uv.lock",
     "LICENSE"
 )
+"""All the configration files needed for the package."""
 
 def check_if_all_config_files_exist() -> bool:
     """Check if all the config files for the package are present.
-
-    Raises:
-        ConfigFileNotFound: if any files are missing.
+    
+    Iterates through CONFIG_FILES and verifies their existence in the current directory.
 
     Returns:
-        bool: True if all the files are present.
+        bool: True if all required configuration files are found.
+
+    Raises:
+        ConfigFileNotFound: If one or more specified configuration files are missing.
     """
     files_not_found: list[str] = []
     for file in CONFIG_FILES:
@@ -32,30 +35,38 @@ def check_if_all_config_files_exist() -> bool:
     return True
 
 
-class Builder:
-    """Builder class for compressing and packaging projects."""
-    
+class Builder: 
+    """
+    Manages the building and archiving of a project into a distributable package.
+
+    This class orchestrates the process of creating a `.tar.gz` archive,
+    respecting `.gitignore` patterns and validating the presence of essential
+    configuration files before compression.
+    """
     def __init__(self, pkg_name: str) -> None:
         """Initialize the builder with a package name.
         
         Args:
-            pkg_name: Name of the package to build
+            pkg_name (str): The name of the package to be built.
         """
         self.pkg_name: str = pkg_name
 
     def build(self, output_dir: str = "wheels/") -> str:
         """Build the package archive respecting .gitignore patterns.
         
+        Validates configuration, creates the output directory, and compresses 
+         the project into a .tar.gz archive.
+
         Args:
-            output_dir: Output directory for the archive (default: current directory)
-            
+            output_dir (str): Directory where the archive will be saved. Defaults to "wheels/".
+
         Returns:
-            str: Path to the created archive
-            
+            str: The absolute path to the newly created package archive file.
+
         Raises:
-            ConfigFileNotFound: if required config files are missing
-            CompressionError: if compression fails
-            BuildError: if build operation fails
+            ConfigFileNotFound: If required configuration files are missing.
+            CompressionError: If compression fails.
+            BuildError: If any other unexpected error occurs during the build.
         """
         try:
             if check_if_all_config_files_exist():

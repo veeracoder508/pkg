@@ -1,4 +1,10 @@
-"""Constructor module for building and compressing packages."""
+"""Module for building and compressing Python packages.
+
+Provides high-level Builder class and low-level utilities like compress, 
+parse_gitignore, and configuration validation. Includes custom exceptions 
+for error reporting.
+"""
+
 
 from .build import Builder, check_if_all_config_files_exist
 from .compresser import compress, parse_gitignore

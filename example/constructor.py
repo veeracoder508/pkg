@@ -11,7 +11,7 @@ from pathlib import Path
 # Add src to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from pkg_bulid import Builder, ConfigFileNotFound, CompressionError, BuildError
+from pkg.bulid import Builder, ConfigFileNotFound, CompressionError, BuildError
 
 
 def example_1_basic_build():
@@ -73,7 +73,7 @@ def example_4_direct_compression():
     print("Example 4: Direct Compression")
     print("-" * 50)
     
-    from pkg_bulid import compress
+    from pkg.bulid import compress
     
     try:
         compress(
@@ -93,7 +93,7 @@ def example_5_parsing_gitignore():
     print("Example 5: Inspect .gitignore Patterns")
     print("-" * 50)
     
-    from src.pkg_bulid.constructor import parse_gitignore
+    from pkg.bulid.constructor import parse_gitignore
     
     patterns = parse_gitignore(".gitignore")
     if patterns:

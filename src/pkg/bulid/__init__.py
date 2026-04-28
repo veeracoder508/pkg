@@ -1,6 +1,6 @@
 """Package builder module."""
 
-from . import constructor
+from pkg.bulid import constructor
 from .constructor import Builder, compress, ConfigFileNotFound, CompressionError, BuildError
 
 __all__ = [

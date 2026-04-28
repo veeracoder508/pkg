@@ -1,5 +1,8 @@
 """
-
+This module provides utilities for compressing a directory into a tar.gz archive,
+with support for `.gitignore` pattern matching to exclude specified files and directories.
+It includes functions for parsing `.gitignore` files, checking paths against patterns,
+and performing the compression operation.
 """
 
 import os
@@ -12,12 +15,15 @@ from .errors import CompressionError
 
 def parse_gitignore(gitignore_path: str) -> Set[str]:
     """Parse .gitignore file and return a set of patterns to ignore.
-    
+
+    Reads the specified .gitignore file, skips empty lines and comments, and extracts 
+    valid ignore patterns.
+
     Args:
-        gitignore_path: Path to .gitignore file
-        
+        gitignore_path (str): The absolute or relative path to the .gitignore file.
+
     Returns:
-        Set of patterns to ignore
+        Set[str]: A set of ignore patterns. Returns an empty set if the file is missing or empty.
     """
     patterns = set()
     if not os.path.exists(gitignore_path):
@@ -38,14 +44,18 @@ def parse_gitignore(gitignore_path: str) -> Set[str]:
 
 def should_ignore(path: str, patterns: Set[str], root_path: str) -> bool:
     """Check if a path should be ignored based on gitignore patterns.
-    
+
+    Evaluates a path against .gitignore patterns. Handles directory patterns, 
+    wildcards, and exact matches. The path is converted to a relative path 
+    from root_path before matching.
+
     Args:
-        path: Path to check
-        patterns: Set of patterns from .gitignore
-        root_path: Root directory path
-        
+        path (str): The absolute path of the file or directory to check.
+        patterns (Set[str]): A set of ignore patterns.
+        root_path (str): The absolute path of the root directory for relative calculations.
+
     Returns:
-        True if path should be ignored, False otherwise
+        bool: True if the path matches an ignore pattern, False otherwise.
     """
     relative_path = os.path.relpath(path, root_path)
     path_obj = Path(relative_path)
@@ -87,14 +97,18 @@ def should_ignore(path: str, patterns: Set[str], root_path: str) -> bool:
 
 def compress(pkg_name: str, source_folder: str = ".", output_file: str = "") -> None:
     """Compress a directory into a tar.gz file, respecting .gitignore patterns.
-    
+
+    Walks through the source folder, filters contents based on .gitignore 
+    and default patterns, and bundles them into a compressed tarball.
+
     Args:
-        pkg_name: Name of the package (used as arcname)
-        source_folder: Source directory to compress (default: current directory)
-        output_file: Output tar.gz file path (default: {pkg_name}.tar.gz)
-        
+        pkg_name (str): Package name, used as the root directory inside the archive.
+        source_folder (str): Directory to compress. Defaults to ".".
+        output_file (str): Output path for the tar.gz. Defaults to "{pkg_name}.tar.gz".
+
     Raises:
-        CompressionError: If compression fails
+        CompressionError: If the source folder is missing or the compression process 
+            encounters an error.
     """
     try:
         if not output_file:

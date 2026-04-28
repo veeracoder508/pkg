@@ -1,3 +1,8 @@
+"""
+This package defines the API endpoints for publishing and managing package uploads
+to the registry.
+"""
+
 import os
 from flask import Blueprint, request, jsonify, current_app
 from werkzeug.utils import secure_filename
@@ -6,11 +11,23 @@ from pkg_server.database.config import db
 from pkg_server.database.database import PkgDatabase, PkgMetaData
 
 
-serv_sender = Blueprint("sender", __name__)
+serv_sender = Blueprint("sender", __name__) # Blueprint for handling package sending/publishing operations.
 
 @serv_sender.route('/api/send/publish', methods=['POST'])
 def publish_package():
-    """Handle package publication by saving the file and updating the database."""
+    """Handle package publication by saving the file and updating the database.
+
+    This endpoint expects a `multipart/form-data` request containing:
+        package: The package file itself (e.g., a .tar.gz archive).
+        name: The name of the package (form field).
+        version: The version of the package (form field).
+
+    Returns:
+        Response: A JSON response indicating success (201) or error (400/500).
+
+    Raises:
+        Exception: If file I/O or database operations fail.
+    """
     if 'package' not in request.files:
         return jsonify({"error": "No package file provided"}), 400
     

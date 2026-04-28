@@ -13,8 +13,8 @@ from pathlib import Path
 # Add src to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from pkg_bulid.publish import Publisher
-from pkg_down import Downloader # Import the Downloader class
+from pkg.bulid.publish import Publisher
+from pkg.down import Downloader # Import the Downloader class
 
 
 def example_publish_package():

@@ -9,3 +9,6 @@ instance/
 
 # Virtual environments
 .venv
+
+# pdoc3 
+my_temp/

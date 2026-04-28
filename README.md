@@ -30,16 +30,16 @@ from pkg_bulid.publish import Publisher
 builder = Builder("my_pkg")
 archive = builder.build()
 
-publisher = Publisher(base_url="http://localhost:5000")
-publisher.sendtoserver("my_pkg", "1.0.0", archive)
+publisher = Publisher(base_url="http://localhost:5000") # Replace it with the url for the server.
+publisher.sendtoserver("my_pkg", "1.0.0", archive) # Replace it with your package.
 ```
 
 ### 3. Search and Download
 ```python
 from pkg_down import Downloader
 
-downloader = Downloader(base_url="http://localhost:5000")
-downloader.download("my_pkg", "1.0.0")
+downloader = Downloader(base_url="http://localhost:5000") # Replace it with the url for the server.
+downloader.download("my_pkg", "1.0.0") # Replace it with your package.
 ```
 
 ## Documentation
