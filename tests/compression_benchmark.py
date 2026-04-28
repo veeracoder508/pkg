@@ -32,7 +32,7 @@ def test_parse_gitignore_missing_file():
     """Test parsing non-existent .gitignore file."""
     patterns = parse_gitignore('/nonexistent/.gitignore')
     assert patterns == set()
-    print("✓ test_parse_gitignore_missing_file passed")
+    print("[-] test_parse_gitignore_missing_file passed")
 
 
 def test_compress_with_filters():
@@ -67,7 +67,7 @@ def test_compress_with_filters():
             assert not any('__pycache__' in name for name in names)
             assert not any('.gitignore' in name for name in names)
 
-        print("✓ test_compress_with_filters passed")
+        print("[-] test_compress_with_filters passed")
 
 
 def test_compress_invalid_source():
@@ -81,7 +81,7 @@ def test_compress_invalid_source():
         assert False, "Should have raised CompressionError"
     except CompressionError as e:
         assert "Source folder not found" in str(e)
-        print("✓ test_compress_invalid_source passed")
+        print("[-] test_compress_invalid_source passed")
 
 
 def test_default_patterns_ignored():
@@ -108,7 +108,7 @@ def test_default_patterns_ignored():
             # readme should be included
             assert any('readme.txt' in name for name in names)
 
-        print("✓ test_default_patterns_ignored passed")
+        print("[-] test_default_patterns_ignored passed")
 
 
 if __name__ == "__main__":
@@ -119,9 +119,9 @@ if __name__ == "__main__":
         test_compress_with_filters()
         test_compress_invalid_source()
         test_default_patterns_ignored()
-        print("\n✓ All tests passed!")
+        print("\n[-] All tests passed!")
     except Exception as e:
-        print(f"\n✗ Test failed: {e}")
+        print(f"\n[x] Test failed: {e}")
         import traceback
         traceback.print_exc()
         sys.exit(1)

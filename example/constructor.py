@@ -22,12 +22,12 @@ def example_1_basic_build():
     try:
         builder = Builder("my_awesome_package")
         output_file = builder.build()
-        print(f"✓ Package built successfully!")
+        print(f"[-] Package built successfully!")
         print(f"  Output: {output_file}")
     except ConfigFileNotFound as e:
-        print(f"✗ {e}")
+        print(f"[x] {e}")
     except Exception as e:
-        print(f"✗ Error: {e}")
+        print(f"[x] Error: {e}")
     print()
 
 
@@ -39,12 +39,12 @@ def example_2_custom_output_dir():
     try:
         builder = Builder("my_package")
         output_file = builder.build(output_dir="./dist")
-        print(f"✓ Package built successfully!")
+        print(f"[-] Package built successfully!")
         print(f"  Output: {output_file}")
     except ConfigFileNotFound as e:
-        print(f"✗ {e}")
+        print(f"[x] {e}")
     except Exception as e:
-        print(f"✗ Error: {e}")
+        print(f"[x] Error: {e}")
     print()
 
 
@@ -56,15 +56,15 @@ def example_3_error_handling():
     try:
         builder = Builder("my_package")
         output_file = builder.build()
-        print(f"✓ Success: {output_file}")
+        print(f"[-] Success: {output_file}")
     except ConfigFileNotFound as e:
-        print(f"✗ Configuration Error: {e}")
+        print(f"[x] Configuration Error: {e}")
     except CompressionError as e:
-        print(f"✗ Compression Error: {e}")
+        print(f"[x] Compression Error: {e}")
     except BuildError as e:
-        print(f"✗ Build Error: {e}")
+        print(f"[x] Build Error: {e}")
     except Exception as e:
-        print(f"✗ Unexpected Error: {e}")
+        print(f"[x] Unexpected Error: {e}")
     print()
 
 
@@ -81,10 +81,10 @@ def example_4_direct_compression():
             source_folder=".",
             output_file="direct_package.tar.gz"
         )
-        print("✓ Package compressed successfully!")
-        print("  Ignored files from .gitignore: ✓")
+        print("[-] Package compressed successfully!")
+        print("  Ignored files from .gitignore: [-]")
     except CompressionError as e:
-        print(f"✗ Compression Error: {e}")
+        print(f"[x] Compression Error: {e}")
     print()
 
 

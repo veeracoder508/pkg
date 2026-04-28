@@ -2,7 +2,7 @@
 
 ## What's Been Implemented
 
-### 1. ✅ .gitignore Support in Compression
+### 1.  .gitignore Support in Compression
 The compression function now automatically reads and respects all patterns in your `.gitignore` file:
 
 ```python
@@ -18,7 +18,7 @@ compress(pkg_name="my_pkg", source_folder=".", output_file="my_pkg.tar.gz")
 - Wildcard patterns: `*.py[oc]`, `dist/**`
 - Exact matches: `.git`, `.gitignore`
 
-### 2. ✅ Builder Class for Package Creation
+### 2.  Builder Class for Package Creation
 Simple, intuitive API for building packages:
 
 ```python
@@ -28,7 +28,7 @@ builder = Bulider("my_package")
 output_file = builder.build()  # Returns: my_package.tar.gz
 ```
 
-### 3. ✅ Configuration Validation
+### 3.  Configuration Validation
 Automatically checks for required config files:
 
 ```python
@@ -39,7 +39,7 @@ Automatically checks for required config files:
 - uv.lock
 ```
 
-### 4. ✅ Comprehensive Error Handling
+### 4.  Comprehensive Error Handling
 Three custom exception types for detailed error reporting:
 
 ```python
@@ -50,7 +50,7 @@ from src.pkg_bulid import (
 )
 ```
 
-### 5. ✅ Module Organization
+### 5.  Module Organization
 Clean module hierarchy with proper exports:
 
 ```python
@@ -60,12 +60,12 @@ from src.pkg_bulid.constructor import compress
 from src.pkg_bulid.constructor.errors import BuildError
 ```
 
-### 6. ✅ CLI Entry Point
+### 6.  CLI Entry Point
 Ready-to-use command-line interface:
 
 ```bash
 python main.py
-# Output: ✓ Package built successfully: package_downloader.tar.gz
+# Output: [-] Package built successfully: package_downloader.tar.gz
 ```
 
 ---
@@ -125,11 +125,11 @@ from src.pkg_bulid import Bulider, ConfigFileNotFound, CompressionError
 try:
     builder = Bulider("my_package")
     output = builder.build()
-    print(f"✓ Success: {output}")
+    print(f"[-] Success: {output}")
 except ConfigFileNotFound as e:
-    print(f"✗ Config Error: {e}")
+    print(f"[x] Config Error: {e}")
 except CompressionError as e:
-    print(f"✗ Compression Error: {e}")
+    print(f"[x] Compression Error: {e}")
 ```
 
 ### Example 3: Direct Compression
@@ -164,13 +164,13 @@ python tests/test_compression.py
 
 Expected output:
 ```
-✓ test_parse_gitignore passed
-✓ test_parse_gitignore_missing_file passed
-✓ test_compress_with_filters passed
-✓ test_compress_invalid_source passed
-✓ test_default_patterns_ignored passed
+[-] test_parse_gitignore passed
+[-] test_parse_gitignore_missing_file passed
+[-] test_compress_with_filters passed
+[-] test_compress_invalid_source passed
+[-] test_default_patterns_ignored passed
 
-✓ All tests passed!
+[-] All tests passed!
 ```
 
 ---
@@ -196,7 +196,7 @@ A: Yes! Uses `os.path` for cross-platform path handling.
 
 ## Next Steps
 
-1. ✅ Run `python main.py` to build your first package
-2. ✅ Check `examples/usage_examples.py` for more patterns
-3. ✅ Run `tests/test_compression.py` to verify functionality
-4. ✅ Review `.gitignore` to see which patterns are used
+1.  Run `python main.py` to build your first package
+2.  Check `examples/usage_examples.py` for more patterns
+3.  Run `tests/test_compression.py` to verify functionality
+4.  Review `.gitignore` to see which patterns are used

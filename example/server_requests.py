@@ -28,7 +28,7 @@ def example_publish_package():
     # Setup dummy package info
     pkg_name = "demo_package"
     version = "1.2.3"
-    dummy_file = "demo_package-1.2.3.tar.gz"
+    dummy_file = f"{pkg_name}-{version}.tar.gz"
     
     # Create a dummy file for the demonstration
     with open(dummy_file, "w") as f:
@@ -37,9 +37,9 @@ def example_publish_package():
     try:
         print(f"Uploading {pkg_name} version {version}...")
         response = publisher.sendtoserver(pkg_name, version, dummy_file)
-        print(f"✓ Server Response: {response}")
+        print(f"[-] Server Response: {response}")
     except Exception as e:
-        print(f"✗ Failed to publish: {e}")
+        print(f"[x] Failed to publish: {e}")
     finally:
         # Clean up the dummy file
         if os.path.exists(dummy_file):
@@ -61,13 +61,13 @@ def example_search_packages():
         
         if response.status_code == 200:
             data = response.json()
-            print(f"✓ Found {data['count']} result(s):")
+            print(f"[-] Found {data['count']} result(s):")
             for pkg in data['results']:
                 print(f"  - {pkg['name']} (ID: {pkg['id']}, Latest: {pkg['latest_version']})")
         else:
-            print(f"✗ Search failed: {response.status_code} - {response.text}")
+            print(f"[x] Search failed: {response.status_code} - {response.text}")
     except Exception as e:
-        print(f"✗ Error connecting to server: {e}")
+        print(f"[x] Error connecting to server: {e}")
     print()
 
 
@@ -91,15 +91,15 @@ def example_download_package():
                 for chunk in response.iter_content(chunk_size=8192):
                     if chunk:
                         f.write(chunk)
-            print(f"✓ Package downloaded successfully to: {output_filename}")
+            print(f"[-] Package downloaded successfully to: {output_filename}")
             
             # Clean up the downloaded file after demonstration
             if os.path.exists(output_filename):
                 os.remove(output_filename)
         else:
-            print(f"✗ Download failed: {response.status_code} - {response.text}")
+            print(f"[x] Download failed: {response.status_code} - {response.text}")
     except Exception as e:
-        print(f"✗ Error connecting to server: {e}")
+        print(f"[x] Error connecting to server: {e}")
     print()
     
 
@@ -116,7 +116,7 @@ def example_download_package_client():
     try:
         print(f"Attempting to download {pkg_name} version {version}...")
         output_filename = downloader.download(pkg_name, version)
-        print(f"✓ Package downloaded successfully to: {output_filename}")
+        print(f"[-] Package downloaded successfully to: {output_filename}")
         
         # Clean up the downloaded file after demonstration
         if os.path.exists(output_filename):
@@ -124,9 +124,9 @@ def example_download_package_client():
             print(f"  Cleaned up: {output_filename}")
             
     except FileNotFoundError as e:
-        print(f"✗ Download failed: {e}")
+        print(f"[x] Download failed: {e}")
     except Exception as e:
-        print(f"✗ An unexpected error occurred: {e}")
+        print(f"[x] An unexpected error occurred: {e}")
     print()
 
 

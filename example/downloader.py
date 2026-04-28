@@ -28,7 +28,7 @@ def example_download_package_client():
     try:
         print(f"Attempting to download {pkg_name} version {version}...")
         output_filename = downloader.download(pkg_name, version)
-        print(f"✓ Package downloaded successfully to: {output_filename}")
+        print(f"[-] Package downloaded successfully to: {output_filename}")
         
         # Clean up the downloaded file after demonstration
         if os.path.exists(output_filename):
@@ -36,9 +36,9 @@ def example_download_package_client():
             print(f"  Cleaned up: {output_filename}")
             
     except FileNotFoundError as e:
-        print(f"✗ Download failed: {e}")
+        print(f"[x] Download failed: {e}")
     except Exception as e:
-        print(f"✗ An unexpected error occurred: {e}")
+        print(f"[x] An unexpected error occurred: {e}")
     print()
 
 
