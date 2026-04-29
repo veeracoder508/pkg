@@ -230,8 +230,8 @@ wheels = [
 ]
 
 [[package]]
-name = "pkg"
-version = "0.0.0"
+name = "pkg-plus-plus"
+version = "0.0.1"
 source = { virtual = "." }
 dependencies = [
     { name = "flask" },

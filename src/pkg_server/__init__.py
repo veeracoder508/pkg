@@ -6,3 +6,5 @@ for package discovery and distribution.
 """
 
 from .server.app import create_app
+
+__version__ = '0.0.1'

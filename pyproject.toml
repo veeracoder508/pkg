@@ -3,8 +3,8 @@
 # build-backend = "uv_build"
 
 [project]
-name = "pkg"
-version = "0.0.0"
+name = "pkg-plus-plus"
+version = "0.0.1"
 authors = [
   { name="R A Veeraragavan", email="veeracoder123@gmail.com" },
 ]

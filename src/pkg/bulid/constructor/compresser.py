@@ -11,6 +11,7 @@ import fnmatch
 from pathlib import Path
 from typing import Set
 from .errors import CompressionError
+from pkg_server.utils.fs import ensure_parent_dir_and_touch
 
 
 def parse_gitignore(gitignore_path: str) -> Set[str]:
@@ -120,10 +121,8 @@ def compress(pkg_name: str, source_folder: str = ".", output_file: str = "") -> 
         if not os.path.exists(root_path):
             raise CompressionError(f"Source folder not found: {root_path}")
         
-        # Ensure the output directory exists before creating the archive
-        output_dir = os.path.dirname(os.path.abspath(output_file))
-        if output_dir and not os.path.exists(output_dir):
-            os.makedirs(output_dir, exist_ok=True)
+        # Ensure the output directory and file exist before creating the archive
+        ensure_parent_dir_and_touch(output_file)
         
         # Parse .gitignore patterns
         gitignore_path = os.path.join(root_path, '.gitignore')

@@ -8,7 +8,7 @@ from flask import Blueprint, request, jsonify, current_app, send_from_directory
 from werkzeug.utils import secure_filename
 from sqlalchemy import select
 from pkg_server.database.config import db
-from pkg_server.database.database import PkgDatabase
+from pkg_server.database.database import PkgDatabase, PkgMetaData
 
 
 serv_getter = Blueprint("getter", __name__)
@@ -51,6 +51,46 @@ def search():
         return jsonify({"results": packages, "count": len(packages)}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+    
+@serv_getter.route("/api/get/versions")
+def get_versions():
+    """Retrieve a list of available package versions.
+
+    This endpoint expects a GET request with a query parameter:
+        name (str): The name of the package to retrieve versions for.
+
+    Returns:
+        Response: A JSON response containing a list of package versions (200),
+                  or an error message (400/500).
+    """
+    pkg_name = request.args.get('name')
+
+    if not pkg_name:
+        return jsonify({"error": "name parameter is required"}), 400
+
+    try:
+        # Find the package by name
+        stmt = select(PkgDatabase).where(PkgDatabase.name == pkg_name)
+        pkg = db.session.execute(stmt).scalar_one_or_none()
+
+        if not pkg:
+            return jsonify({"error": f"Package {pkg_name} not found"}), 404
+
+        # Retrieve all metadata entries (versions) for this package, newest first
+        stmt_meta = select(PkgMetaData).where(PkgMetaData.pkg_id == pkg.id).order_by(PkgMetaData.id.desc())
+        meta_results = db.session.execute(stmt_meta).scalars().all()
+
+        versions = [m.version for m in meta_results]
+
+        return jsonify({
+            "name": pkg.name,
+            "latest_version": pkg.latest_version,
+            "versions": versions
+        }), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 
 @serv_getter.route('/api/get/download', methods=['GET'])
 def download_package():
