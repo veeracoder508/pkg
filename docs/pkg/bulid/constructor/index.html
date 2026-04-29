@@ -320,10 +320,8 @@ with support for <code>.gitignore</code> pattern matching to exclude specified â
         if not os.path.exists(root_path):
             raise CompressionError(f&#34;Source folder not found: {root_path}&#34;)
         
-        # Ensure the output directory exists before creating the archive
-        output_dir = os.path.dirname(os.path.abspath(output_file))
-        if output_dir and not os.path.exists(output_dir):
-            os.makedirs(output_dir, exist_ok=True)
+        # Ensure the output directory and file exist before creating the archive
+        ensure_parent_dir_and_touch(output_file)
         
         # Parse .gitignore patterns
         gitignore_path = os.path.join(root_path, &#39;.gitignore&#39;)

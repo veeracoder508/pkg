@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
 <meta name="generator" content="pdoc3 0.11.6">
-<title>pkg.down.downloader API documentation</title>
-<meta name="description" content="">
+<title>pkg_server.utils.fs API documentation</title>
+<meta name="description" content="Filesystem helper utilities.">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/sanitize.min.css" integrity="sha512-y1dtMcuvtTMJc1yPgEqF0ZjQbhnc/bFhyvIyVNb9Zk5mIGtqVaAB1Ttl28su8AvFMOY0EwRbAe+HCLqj6W7/KA==" crossorigin>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/typography.min.css" integrity="sha512-Y1DYSb995BAfxobCkKepB1BqJJTPrOp3zPL74AWFugHHmmdcvO+C48WLrUOlhGMc0QG7AE3f7gmvvcrmX2fDoA==" crossorigin>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css" crossorigin>
@@ -216,247 +216,54 @@ color: #e4e4e7 !important;
 <main>
 <article id="content">
 <header>
-<h1 class="title">Module <code>pkg.down.downloader</code></h1>
+<h1 class="title">Module <code>pkg_server.utils.fs</code></h1>
 </header>
 <section id="section-intro">
+<p>Filesystem helper utilities.</p>
 </section>
 <section>
 </section>
 <section>
 </section>
 <section>
-</section>
-<section>
-<h2 class="section-title" id="header-classes">Classes</h2>
+<h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
-<dt id="pkg.down.downloader.Downloader"><code class="flex name class">
-<span>class <span class="ident">Downloader</span></span>
-<span>(</span><span>base_url: str = 'http://localhost:5000')</span>
+<dt id="pkg_server.utils.fs.ensure_parent_dir_and_touch"><code class="name flex">
+<span>def <span class="ident">ensure_parent_dir_and_touch</span></span>(<span>path: str | pathlib.Path) ‑> None</span>
 </code></dt>
 <dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class Downloader: 
+<pre><code class="python">def ensure_parent_dir_and_touch(path: Union[str, Path]) -&gt; None:
+    &#34;&#34;&#34;Ensure the parent directory exists and create the file if missing.
+
+    This is a best-effort helper: it will create missing parent directories
+    and touch the file so callers that expect the path to be present can proceed.
+    Exceptions are swallowed to avoid breaking callers in non-critical paths.
     &#34;&#34;&#34;
-    A client for downloading packages from the package registry server.
+    p = Path(path)
+    parent = p.parent
+    if parent and not parent.exists():
+        try:
+            os.makedirs(parent, exist_ok=True)
+        except Exception:
+            return
 
-    Handles HTTP requests to the registry API and streams the package 
-    contents directly to the local filesystem.
-    &#34;&#34;&#34;
-    def __init__(self, base_url: str = &#34;http://localhost:5000&#34;):
-        &#34;&#34;&#34;
-        Initialize the Downloader with the registry server&#39;s base URL.
-
-        Args:
-            base_url (str): The URL of the registry server.
-        &#34;&#34;&#34;
-        self.base_url = base_url.rstrip(&#39;/&#39;)
-
-    def download(self, pkg_name: str, version: str, path: str = &#34;.&#34;, unpack: bool = True) -&gt; str:
-        &#34;&#34;&#34;
-        Download a specific version of a package and save it locally.
-
-        Args:
-            pkg_name (str): The name of the package to download.
-            version (str): The specific version string to retrieve.
-            path (str): The directory to save the downloaded package.
-            unpack (bool): To unpack the package or not. Defaults to True.
-
-        Returns:
-            str: The filename of the saved package archive.
-
-        Raises:
-            FileNotFoundError: If the package version does not exist on the server.
-            Exception: If the server returns an unexpected error code.
-        &#34;&#34;&#34;
-        url = f&#34;{self.base_url}/api/get/download&#34;
-        params = {&#34;name&#34;: pkg_name, &#34;version&#34;: version}
-        response = requests.get(url, params=params, stream=True)
-        output_filename = os.path.join(path, f&#34;{pkg_name}-{version}.tar.gz&#34;)
-
-        if response.status_code == 200:
-            # Determine a safe filename for the downloaded package
-            # This assumes the server sends a filename in the Content-Disposition header,
-            # or we can construct one based on pkg_name and version.
-            # For simplicity, let&#39;s construct one.
-            
-            # Ensure destination directory and file exist
-            ensure_parent_dir_and_touch(output_filename)
-
-            with open(output_filename, &#39;wb&#39;) as f:
-                for chunk in response.iter_content(chunk_size=8192):
-                    if chunk:
-                        f.write(chunk)
-            if unpack:
-                # Ensure we have data and let tarfile auto-detect compression
-                try:
-                    if os.path.getsize(output_filename) == 0:
-                        raise Exception(&#34;Downloaded file is empty&#34;)
-                    with tarfile.open(output_filename, &#34;r:*&#34;) as tar:
-                        tar.extractall(path=path)
-                except tarfile.ReadError as e:
-                    raise Exception(f&#34;Failed to unpack archive: {e}&#34;)
-
-            return output_filename
-        elif response.status_code == 404:
-            raise FileNotFoundError(f&#34;Package {pkg_name} version {version} not found on server.&#34;)
-        else:
-            raise Exception(f&#34;Failed to download package (Status: {response.status_code}, Error: {response.text})&#34;)
-        
-    def list_versions(self, pkg_name: str) -&gt; list:
-        &#34;&#34;&#34;list all the versions of the package.
-
-        Args:
-            pkg_name (str): The package name
-
-        Returns:
-            list: The list of packages.
-        &#34;&#34;&#34;
-        url = f&#34;{self.base_url}/api/get/versions&#34;
-        params = {&#34;name&#34;: pkg_name}
-        response = requests.get(url, params=params, stream=True)
-        if response.status_code == 200:
-            return response.json()[&#34;versions&#34;]
-        else:
-            raise Exception(f&#34;Failed to list versions (Status: {response.status_code}, Error: {response.text})&#34;)</code></pre>
+    try:
+        p.touch(exist_ok=True)
+    except Exception:
+        return</code></pre>
 </details>
-<div class="desc"><p>A client for downloading packages from the package registry server.</p>
-<p>Handles HTTP requests to the registry API and streams the package
-contents directly to the local filesystem.</p>
-<p>Initialize the Downloader with the registry server's base URL.</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>base_url</code></strong> :&ensp;<code>str</code></dt>
-<dd>The URL of the registry server.</dd>
-</dl></div>
-<h3>Methods</h3>
-<dl>
-<dt id="pkg.down.downloader.Downloader.download"><code class="name flex">
-<span>def <span class="ident">download</span></span>(<span>self, pkg_name: str, version: str, path: str = '.', unpack: bool = True) ‑> str</span>
-</code></dt>
-<dd>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def download(self, pkg_name: str, version: str, path: str = &#34;.&#34;, unpack: bool = True) -&gt; str:
-    &#34;&#34;&#34;
-    Download a specific version of a package and save it locally.
-
-    Args:
-        pkg_name (str): The name of the package to download.
-        version (str): The specific version string to retrieve.
-        path (str): The directory to save the downloaded package.
-        unpack (bool): To unpack the package or not. Defaults to True.
-
-    Returns:
-        str: The filename of the saved package archive.
-
-    Raises:
-        FileNotFoundError: If the package version does not exist on the server.
-        Exception: If the server returns an unexpected error code.
-    &#34;&#34;&#34;
-    url = f&#34;{self.base_url}/api/get/download&#34;
-    params = {&#34;name&#34;: pkg_name, &#34;version&#34;: version}
-    response = requests.get(url, params=params, stream=True)
-    output_filename = os.path.join(path, f&#34;{pkg_name}-{version}.tar.gz&#34;)
-
-    if response.status_code == 200:
-        # Determine a safe filename for the downloaded package
-        # This assumes the server sends a filename in the Content-Disposition header,
-        # or we can construct one based on pkg_name and version.
-        # For simplicity, let&#39;s construct one.
-        
-        # Ensure destination directory and file exist
-        ensure_parent_dir_and_touch(output_filename)
-
-        with open(output_filename, &#39;wb&#39;) as f:
-            for chunk in response.iter_content(chunk_size=8192):
-                if chunk:
-                    f.write(chunk)
-        if unpack:
-            # Ensure we have data and let tarfile auto-detect compression
-            try:
-                if os.path.getsize(output_filename) == 0:
-                    raise Exception(&#34;Downloaded file is empty&#34;)
-                with tarfile.open(output_filename, &#34;r:*&#34;) as tar:
-                    tar.extractall(path=path)
-            except tarfile.ReadError as e:
-                raise Exception(f&#34;Failed to unpack archive: {e}&#34;)
-
-        return output_filename
-    elif response.status_code == 404:
-        raise FileNotFoundError(f&#34;Package {pkg_name} version {version} not found on server.&#34;)
-    else:
-        raise Exception(f&#34;Failed to download package (Status: {response.status_code}, Error: {response.text})&#34;)</code></pre>
-</details>
-<div class="desc"><p>Download a specific version of a package and save it locally.</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>pkg_name</code></strong> :&ensp;<code>str</code></dt>
-<dd>The name of the package to download.</dd>
-<dt><strong><code>version</code></strong> :&ensp;<code>str</code></dt>
-<dd>The specific version string to retrieve.</dd>
-<dt><strong><code>path</code></strong> :&ensp;<code>str</code></dt>
-<dd>The directory to save the downloaded package.</dd>
-<dt><strong><code>unpack</code></strong> :&ensp;<code>bool</code></dt>
-<dd>To unpack the package or not. Defaults to True.</dd>
-</dl>
-<h2 id="returns">Returns</h2>
-<dl>
-<dt><code>str</code></dt>
-<dd>The filename of the saved package archive.</dd>
-</dl>
-<h2 id="raises">Raises</h2>
-<dl>
-<dt><code>FileNotFoundError</code></dt>
-<dd>If the package version does not exist on the server.</dd>
-<dt><code>Exception</code></dt>
-<dd>If the server returns an unexpected error code.</dd>
-</dl></div>
-</dd>
-<dt id="pkg.down.downloader.Downloader.list_versions"><code class="name flex">
-<span>def <span class="ident">list_versions</span></span>(<span>self, pkg_name: str) ‑> list</span>
-</code></dt>
-<dd>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def list_versions(self, pkg_name: str) -&gt; list:
-    &#34;&#34;&#34;list all the versions of the package.
-
-    Args:
-        pkg_name (str): The package name
-
-    Returns:
-        list: The list of packages.
-    &#34;&#34;&#34;
-    url = f&#34;{self.base_url}/api/get/versions&#34;
-    params = {&#34;name&#34;: pkg_name}
-    response = requests.get(url, params=params, stream=True)
-    if response.status_code == 200:
-        return response.json()[&#34;versions&#34;]
-    else:
-        raise Exception(f&#34;Failed to list versions (Status: {response.status_code}, Error: {response.text})&#34;)</code></pre>
-</details>
-<div class="desc"><p>list all the versions of the package.</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>pkg_name</code></strong> :&ensp;<code>str</code></dt>
-<dd>The package name</dd>
-</dl>
-<h2 id="returns">Returns</h2>
-<dl>
-<dt><code>list</code></dt>
-<dd>The list of packages.</dd>
-</dl></div>
+<div class="desc"><p>Ensure the parent directory exists and create the file if missing.</p>
+<p>This is a best-effort helper: it will create missing parent directories
+and touch the file so callers that expect the path to be present can proceed.
+Exceptions are swallowed to avoid breaking callers in non-critical paths.</p></div>
 </dd>
 </dl>
-</dd>
-</dl>
+</section>
+<section>
 </section>
 </article>
 <nav id="sidebar">
@@ -466,18 +273,12 @@ contents directly to the local filesystem.</p>
 <ul id="index">
 <li><h3>Super-module</h3>
 <ul>
-<li><code><a title="pkg.down" href="../index.html">pkg.down</a></code></li>
+<li><code><a title="pkg_server.utils" href="index.html">pkg_server.utils</a></code></li>
 </ul>
 </li>
-<li><h3><a href="#header-classes">Classes</a></h3>
-<ul>
-<li>
-<h4><code><a title="pkg.down.downloader.Downloader" href="#pkg.down.downloader.Downloader">Downloader</a></code></h4>
+<li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="">
-<li><code><a title="pkg.down.downloader.Downloader.download" href="#pkg.down.downloader.Downloader.download">download</a></code></li>
-<li><code><a title="pkg.down.downloader.Downloader.list_versions" href="#pkg.down.downloader.Downloader.list_versions">list_versions</a></code></li>
-</ul>
-</li>
+<li><code><a title="pkg_server.utils.fs.ensure_parent_dir_and_touch" href="#pkg_server.utils.fs.ensure_parent_dir_and_touch">ensure_parent_dir_and_touch</a></code></li>
 </ul>
 </li>
 </ul>

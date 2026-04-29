@@ -22,8 +22,8 @@ def example_download_package_client():
     
     downloader = Downloader(base_url="http://localhost:5000")
     
-    pkg_name = "demo_package"
-    version = "1.2.3"
+    pkg_name = "pkg++"
+    version = "0.0.0"
     
     try:
         print(f"Attempting to download {pkg_name} version {version}...")

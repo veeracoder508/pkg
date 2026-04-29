@@ -273,7 +273,68 @@ def publish_package():
         
         filename = secure_filename(f&#34;{name}-{version}.tar.gz&#34;)
         save_path = os.path.join(storage_path, filename)
+        # Ensure parent dir and file exist before saving
+        ensure_parent_dir_and_touch(save_path)
         file.save(save_path)
+
+        # Attempt to read package metadata from pyproject.toml inside archive
+        author_val = None
+        user_name_val = None
+        license_val = None
+
+        try:
+            with tarfile.open(save_path, &#34;r:gz&#34;) as tar:
+                # Look for a pyproject.toml at the top level or within members
+                toml_member = None
+                for m in tar.getmembers():
+                    if Path(m.name).name == &#34;pyproject.toml&#34;:
+                        toml_member = m
+                        break
+
+                if toml_member is not None:
+                    f = tar.extractfile(toml_member)
+                    if f is not None:
+                        toml_bytes = f.read()
+                        try:
+                            toml_data = tomllib.loads(toml_bytes.decode(&#34;utf-8&#34;))
+                        except AttributeError:
+                            # tomllib in py3.11 accepts bytes for loads in some backports
+                            toml_data = tomllib.loads(toml_bytes)
+
+                        project = toml_data.get(&#34;project&#34;) or toml_data.get(&#34;tool&#34;, {}).get(&#34;poetry&#34;) or {}
+
+                        # author: try authors list, fall back to maintainer or name
+                        authors = project.get(&#34;authors&#34;) or project.get(&#34;author&#34;)
+                        if isinstance(authors, list) and authors:
+                            first = authors[0]
+                            if isinstance(first, dict):
+                                author_val = first.get(&#34;name&#34;) or first.get(&#34;email&#34;)
+                            else:
+                                author_val = str(first)
+                        elif isinstance(authors, str):
+                            author_val = authors
+
+                        # license
+                        lic = project.get(&#34;license&#34;)
+                        if isinstance(lic, dict):
+                            license_val = lic.get(&#34;text&#34;) or lic.get(&#34;file&#34;) or lic.get(&#34;expression&#34;)
+                        elif isinstance(lic, str):
+                            license_val = lic
+
+                        # user_name: prefer email local-part if available
+                        if isinstance(authors, list) and authors:
+                            first = authors[0]
+                            email = None
+                            if isinstance(first, dict):
+                                email = first.get(&#34;email&#34;)
+                            elif isinstance(first, str) and &#34;@&#34; in first:
+                                email = first
+                            if email:
+                                user_name_val = email.split(&#34;@&#34;)[0]
+
+        except Exception:
+            # Non-fatal: if parsing fails, continue without metadata
+            author_val = author_val
 
         # Database operations: Update existing package or create a new entry
         stmt = select(PkgDatabase).where(PkgDatabase.name == name)
@@ -286,9 +347,33 @@ def publish_package():
             pkg.latest_version = version
         
         db.session.flush() # Flush to ensure the pkg.id is available for metadata
-        
+
+        # If this exact version already exists for the package, don&#39;t store duplicate
+        stmt_existing = select(PkgMetaData).where(
+            PkgMetaData.pkg_id == pkg.id,
+            PkgMetaData.version == version
+        )
+        existing_meta = db.session.execute(stmt_existing).scalar_one_or_none()
+        if existing_meta is not None:
+            # remove saved file to avoid duplicate storage
+            try:
+                if os.path.exists(save_path):
+                    os.remove(save_path)
+            except Exception:
+                pass
+            db.session.rollback()
+            return jsonify({&#34;error&#34;: f&#34;Package {name} version {version} already exists&#34;}), 409
+
         # Log metadata for the specific version being uploaded
-        meta = PkgMetaData(pkg_id=pkg.id, version=version)
+        meta_kwargs = {&#34;pkg_id&#34;: pkg.id, &#34;version&#34;: version}
+        if author_val:
+            meta_kwargs[&#34;author&#34;] = author_val
+        if user_name_val:
+            meta_kwargs[&#34;user_name&#34;] = user_name_val
+        if license_val:
+            meta_kwargs[&#34;license&#34;] = license_val
+
+        meta = PkgMetaData(**meta_kwargs)
         db.session.add(meta)
         db.session.commit()
 

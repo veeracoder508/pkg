@@ -308,6 +308,62 @@ handles file not found scenarios internally before this
 exception catch.</dd>
 </dl></div>
 </dd>
+<dt id="pkg_server.server.api.get.get_versions"><code class="name flex">
+<span>def <span class="ident">get_versions</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@serv_getter.route(&#34;/api/get/versions&#34;)
+def get_versions():
+    &#34;&#34;&#34;Retrieve a list of available package versions.
+
+    This endpoint expects a GET request with a query parameter:
+        name (str): The name of the package to retrieve versions for.
+
+    Returns:
+        Response: A JSON response containing a list of package versions (200),
+                  or an error message (400/500).
+    &#34;&#34;&#34;
+    pkg_name = request.args.get(&#39;name&#39;)
+
+    if not pkg_name:
+        return jsonify({&#34;error&#34;: &#34;name parameter is required&#34;}), 400
+
+    try:
+        # Find the package by name
+        stmt = select(PkgDatabase).where(PkgDatabase.name == pkg_name)
+        pkg = db.session.execute(stmt).scalar_one_or_none()
+
+        if not pkg:
+            return jsonify({&#34;error&#34;: f&#34;Package {pkg_name} not found&#34;}), 404
+
+        # Retrieve all metadata entries (versions) for this package, newest first
+        stmt_meta = select(PkgMetaData).where(PkgMetaData.pkg_id == pkg.id).order_by(PkgMetaData.id.desc())
+        meta_results = db.session.execute(stmt_meta).scalars().all()
+
+        versions = [m.version for m in meta_results]
+
+        return jsonify({
+            &#34;name&#34;: pkg.name,
+            &#34;latest_version&#34;: pkg.latest_version,
+            &#34;versions&#34;: versions
+        }), 200
+    except Exception as e:
+        return jsonify({&#34;error&#34;: str(e)}), 500</code></pre>
+</details>
+<div class="desc"><p>Retrieve a list of available package versions.</p>
+<p>This endpoint expects a GET request with a query parameter:
+name (str): The name of the package to retrieve versions for.</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>Response</code></dt>
+<dd>A JSON response containing a list of package versions (200),
+or an error message (400/500).</dd>
+</dl></div>
+</dd>
 <dt id="pkg_server.server.api.get.search"><code class="name flex">
 <span>def <span class="ident">search</span></span>(<span>)</span>
 </code></dt>
@@ -389,6 +445,7 @@ or an error message (400/500).</dd>
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="">
 <li><code><a title="pkg_server.server.api.get.download_package" href="#pkg_server.server.api.get.download_package">download_package</a></code></li>
+<li><code><a title="pkg_server.server.api.get.get_versions" href="#pkg_server.server.api.get.get_versions">get_versions</a></code></li>
 <li><code><a title="pkg_server.server.api.get.search" href="#pkg_server.server.api.get.search">search</a></code></li>
 </ul>
 </li>

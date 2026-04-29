@@ -5,10 +5,16 @@ build/
 dist/
 wheels/
 *.egg-info
+
 instance/
+downloads/
 
 # Virtual environments
-.venv
+.venv/
 
 # pdoc3 
 my_temp/
+
+# Tools
+tools/
+scripts/

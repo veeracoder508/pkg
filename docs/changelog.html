@@ -947,159 +947,25 @@ Visibility Fixes (Targets & Code Links)
 <body>
     <main>
         <article id="content">
-            <h1 class="title">pkg Changelog</h1>
-            <p><strong>version</strong>: 0.0.0</p>
-            <p><strong>type</strong>: stable</p>
-            <p><strong>total changes</strong>: 11</p>
-            <hr />
-            <ol type="1">
-                <li>
-                    <p>Enhanced <code>compresser.py</code> with
-                        <code>parse_gitignore()</code> and <code>should_ignore()</code> to
-                        support intelligent pattern matching for exact filenames, extensions
-                        (<code>*.pyc</code>), and directory notations (<code>build/</code>).
-                        <strong class="feature">(tag: feature)</strong>
-                    </p>
-                </li>
-                <li>
-                    <p>Integrated <code>.gitignore</code> support into the
-                        <code>compress()</code> function, ensuring automatic exclusion of
-                        <code>.git</code>, <code>.gitignore</code>, and archive files while
-                        filtering both files and directories during traversal. <strong class="feature">(tag:
-                            feature)</strong>
-                    </p>
-                </li>
-                <li>
-                    <p>Added custom exception classes <code>ConfigFileNotFound</code>,
-                        <code>CompressionError</code>, and <code>BuildError</code> to
-                        <code>errors.py</code> for granular error reporting across all
-                        operations. <strong class="structure">(tag: structure)</strong>
-                    </p>
-                </li>
-                <li>
-                    <p>Fixed a syntax error in <code>build.py</code> where the
-                        <code>CONFIG_FILES</code> tuple was missing a trailing comma.
-                        <strong class="fix">(tag: fix)</strong>
-                    </p>
-                </li>
-                <li>
-                    <p>Implemented <code>check_if_all_config_files_exist()</code> in
-                        <code>build.py</code> to validate environment readiness and
-                        configuration before the build starts. <strong class="feature">(tag:
-                            feature)</strong>
-                    </p>
-                </li>
-                <li>
-                    <p>Refactored <code>main.py</code> and the <code>Builder</code>
-                        class to utilize the new modular architecture, eliminating code
-                        duplication and ensuring proper exception propagation with user-friendly
-                        console output. <strong class="refactor">(tag: refactor)</strong></p>
-                </li>
-                <li>
-                    <p>Restructured the project using <code>__init__.py</code> files
-                        with proper <code>__all__</code> declarations in both the constructor
-                        and package modules to provide a clean, modular public API.
-                        <strong class="structure">(tag: structure)</strong>
-                    </p>
-                </li>
-                <li>
-                    <p>Developed a Flask-based REST API Server featuring
-                        case-insensitive partial name matching for package searches.
-                        <strong class="feature">(tag: feature)</strong>
-                    </p>
-                </li>
-                <li>
-                    <p>Integrated SQLAlchemy models into the server to handle the
-                        package registry and backend database management. <strong class="feature">(tag:
-                            feature)</strong></p>
-                </li>
-                <li>
-                    <p>Implemented a Downloader Client SDK featuring a programmatic
-                        interface for stream-based downloading and automated file handling.
-                        <strong class="feature">(tag: feature)</strong>
-                    </p>
-                </li>
-                <li>
-                    <p>Added security enhancements for downloads, including filename
-                        sanitization and strict protection against directory traversal attacks.
-                        <strong class="security">(tag: security)</strong>
-                    </p>
-                </li>
-            </ol>
-            <hr />
-            <h2 id="overview">Overview</h2>
-            <p>The codebase has been enhanced to respect <code>.gitignore</code>
-                patterns during compression and all features have been completed with
-                proper error handling.</p>
-            <h2 id="features-completed">Features Completed</h2>
-            <table>
-                <thead>
-                    <tr class="header">
-                        <th>Feature</th>
-                        <th>Status</th>
-                        <th>Implementation</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr class="odd">
-                        <td>.gitignore pattern parsing</td>
-                        <td>active</td>
-                        <td><code>parse_gitignore()</code></td>
-                    </tr>
-                    <tr class="even">
-                        <td>File filtering during compression</td>
-                        <td>active</td>
-                        <td><code>should_ignore()</code> + <code>compress()</code></td>
-                    </tr>
-                    <tr class="odd">
-                        <td>Directory filtering</td>
-                        <td>active</td>
-                        <td>Integrated into walk loop</td>
-                    </tr>
-                    <tr class="even">
-                        <td>Error handling</td>
-                        <td>active</td>
-                        <td>Multiple custom exceptions</td>
-                    </tr>
-                    <tr class="odd">
-                        <td>Config validation</td>
-                        <td>active</td>
-                        <td><code>check_if_all_config_files_exist()</code></td>
-                    </tr>
-                    <tr class="even">
-                        <td>Builder pattern</td>
-                        <td>active</td>
-                        <td><code>Builder</code> class</td>
-                    </tr>
-                    <tr class="odd">
-                        <td>Modular API</td>
-                        <td>active</td>
-                        <td>Package hierarchy with exports</td>
-                    </tr>
-                    <tr class="even">
-                        <td>CLI entry point</td>
-                        <td>active</td>
-                        <td><code>main.py</code> with error reporting</td>
-                    </tr>
-                    <tr class="odd">
-                        <td>REST API Server</td>
-                        <td>active</td>
-                        <td>Flask-based search and download</td>
-                    </tr>
-                    <tr class="even">
-                        <td>Database Integration</td>
-                        <td>active</td>
-                        <td>SQLAlchemy models for package registry</td>
-                    </tr>
-                    <tr class="odd">
-                        <td>Downloader Client</td>
-                        <td>active</td>
-                        <td>Programmatic download SDK</td>
-                    </tr>
-                </tbody>
-            </table>
-            <h2 id="pattern-matching-examples">Pattern Matching Examples</h2>
-            <p>The implementation handles:</p>
+<h1 id="changelog-md">CHANGELOG.md</h1>
+<p><strong>version</strong>: 0.0.1</p>
+<p><strong>type</strong>: stable</p>
+<p><strong>total changes</strong>: 2</p>
+<hr>
+<ol>
+<li><p>Use <code>tomllib</code> (with fallback to <code>tomli</code>) to parse <code>pyproject.toml</code> from uploaded package archives and populate <code>PkgMetaData</code> fields: <code>author</code>, <code>user_name</code>, and <code>license</code>. <strong class="feature">(tag: feature)</strong></p>
+</li>
+<li><p>Prevent storing duplicate package versions: endpoint now checks for an existing <code>PkgMetaData</code> with the same <code>pkg_id</code> and <code>version</code>; on conflict it removes the uploaded file (best-effort) and returns HTTP 409. <strong class="feature">(tag: feature)</strong></p>
+</li>
+<li><p><code>tools/generate_pdoc.py</code> — wrapper script that sets <code>PYTHONPATH</code> to the repository <code>src</code> directory and runs <code>pdoc</code> to generate HTML for the <code>pkg</code> package. Path: <code>tools/generate_pdoc.py</code>. <strong class="add">(tag: add)</strong></p>
+</li>
+<li><p><code>scripts/generate_docs.ps1</code> — Windows PowerShell helper that runs the Python wrapper (uses <code>.venv</code> python if present). Path: <code>scripts/generate_docs.ps1</code>. <strong class="add">(tag: add)</strong></p>
+</li>
+<li><p><code>docs/GENERATE_DOCS.md</code> — short instructions for running the wrapper and PowerShell helper. Path: <code>docs/GENERATE_DOCS.md</code>. <strong class="updates">(tag: update)</strong></p>
+</li>
+<li><p>Todo list via agent to track tasks performed. (Internal <code>manage_todo_list</code> updates.)</p>
+</li>
+</ol>
 
         </article>
         <nav id="sidebar">
@@ -1110,8 +976,8 @@ Visibility Fixes (Targets & Code Links)
                 <li>
                     <h3><a href="index.html">Packages</a></h3>
                     <ul>
-                        <li><code><a title="e2eeftp" href="e2eeftp/index.html">e2eeftp</a></code></li>
-                        <li><code><a title="benchmarker" href="benchmarker/index.html">benchmarker</a></code></li>
+                        <li><code><a title="e2eeftp" href="pkg/index.html">pkg</a></code></li>
+                        <li><code><a title="benchmarker" href="pkg_server/index.html">pkg_server</a></code></li>
                     </ul>
                 </li>
             </ul>
